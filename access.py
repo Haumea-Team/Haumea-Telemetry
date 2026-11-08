@@ -48,7 +48,7 @@ class AccessVerifier:
 		self.fetch = fetch or self.fetch_certs
 		self.leeway = leeway
 		self.keys = {}
-		self.fetched = 0.0
+		self.fetched = None	# never yet: the first token fetches them (monotonic() counts from boot, so 0.0 isn't long ago)
 		self.lock = threading.Lock()
 
 	def fetch_certs(self):
@@ -57,8 +57,8 @@ class AccessVerifier:
 
 	def key(self, kid):
 		with self.lock:
-			age = time.monotonic() - self.fetched
-			if age > REFETCH_AFTER or (kid not in self.keys and age > UNKNOWN_KID_WAIT):
+			age = None if self.fetched is None else time.monotonic() - self.fetched
+			if age is None or age > REFETCH_AFTER or (kid not in self.keys and age > UNKNOWN_KID_WAIT):
 				try:
 					data = self.fetch()
 				except Exception:	# Cloudflare unreachable: keep the keys there are
