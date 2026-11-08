@@ -1,7 +1,5 @@
 # Deploying the telemetry and crash report server
 
-> Already running it under its old name (haumea-server)? `sudo deploy/migrate-from-haumea-server.sh`
-> renames it in place, keeping its data, with a backup and automatic rollback.
 
 Haumea Studio's daily pings go to `https://telemetry.itsneufox.xyz/haumea/telemetry/ping`
 and its crash reports to `https://reports.itsneufox.xyz/haumea/reports`. This

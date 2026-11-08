@@ -14,10 +14,6 @@ One Python file and a few helpers, standard library only, about 30 MB of memory.
 - `haumea-telemetry.service`, `Caddyfile`, `nginx-*.conf`: deploying it ([DEPLOY.md](DEPLOY.md))
 - `test_telemetry_server.py`: its tests (`python3 -m unittest test_telemetry_server.py`)
 
-It was called `haumea-server` inside Haumea's repo, which is now the name of the multiplayer server.
-A server deployed under the old name moves with `sudo deploy/migrate-from-haumea-server.sh`: it
-backs everything up, renames the user, folders and service, checks `/healthz`, and puts it all back
-if anything fails.
 
 Haumea's own tests check its crash reports against this server's `validate_report`: they look for
 this repo beside the Haumea checkout (or in `HAUMEA_TELEMETRY_DIR`).
