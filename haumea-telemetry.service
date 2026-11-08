@@ -1,0 +1,48 @@
+# systemd unit for Haumea Studio's telemetry and crash report server.
+# Copy to /etc/systemd/system/haumea-telemetry.service (see DEPLOY.md).
+
+[Unit]
+Description=Haumea Studio telemetry and crash reports
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=haumea-telemetry
+Group=haumea-telemetry
+ExecStart=/usr/bin/python3 /opt/haumea-telemetry/haumea_telemetry.py --config /etc/haumea-telemetry/env
+Restart=on-failure
+RestartSec=5
+
+# Its data in /var/lib/haumea-telemetry, made and owned by systemd.
+StateDirectory=haumea-telemetry
+StateDirectoryMode=0700
+ReadWritePaths=/var/lib/haumea-telemetry
+
+# Sandboxing
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+UMask=0077
+MemoryMax=128M
+
+[Install]
+WantedBy=multi-user.target
