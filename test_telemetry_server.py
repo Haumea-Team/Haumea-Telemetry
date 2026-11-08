@@ -44,6 +44,19 @@ class FakeWebhook(http.server.BaseHTTPRequestHandler):
 	def log_message(self, *a):
 		pass
 
+	@staticmethod
+	def payload(content_type, body):
+		"""The message, as Discord reads it: the JSON body, or a multipart post's payload_json
+		part (an alert with the crash's details attached as a file)."""
+		if not content_type.startswith('multipart/form-data'):
+			return json.loads(body)
+		boundary = content_type.split('boundary=', 1)[1].encode()
+		for part in body.split(b'--' + boundary):
+			head, _, data = part.partition(b'\r\n\r\n')
+			if b'name="payload_json"' in head:
+				return json.loads(data.rstrip(b'\r\n'))
+		raise ValueError('no payload_json part')
+
 	def do_POST(self):
 		body = self.rfile.read(int(self.headers['Content-Length']))
 		if FakeWebhook.busy > 0:
@@ -54,7 +67,7 @@ class FakeWebhook(http.server.BaseHTTPRequestHandler):
 			self.end_headers()
 			self.wfile.write(data)
 			return
-		FakeWebhook.posts.append(json.loads(body))
+		FakeWebhook.posts.append(FakeWebhook.payload(self.headers.get('Content-Type', ''), body))
 		self.send_response(204)
 		self.end_headers()
 
